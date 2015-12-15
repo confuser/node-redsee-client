@@ -40,17 +40,16 @@ module.exports = function (opts, callback) {
 
       if (opts && opts[listType]) options = opts[listType][type]
 
+      var fn
+
       if (!options) {
-        client[listType][type] = types[listType][type]()
-        return eachCb()
+        fn = client[listType][type] = types[listType][type]()
+      } else if (Array.isArray(options.data)) {
+        fn = client[listType][type] = types[listType][type](options.data)
       }
 
-      if (Array.isArray(options.data)) {
-        var fn = client[listType][type] = types[listType][type](options.data)
-
-        // Do nothing on memory updates
+      if (fn) {
         fn.update = function (data, cb) { if (cb) cb() }
-
         return eachCb()
       }
 
